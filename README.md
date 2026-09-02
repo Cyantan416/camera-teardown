@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Camera Teardown
 
-## Getting Started
+A scroll-driven 3D teardown of a camera, built entirely in code.
 
-First, run the development server:
+Scrolling pulls the camera apart into 36 components, walks through four
+subsystems one at a time, and puts it back together. You can drag at any
+point to orbit the model.
+
+## The constraint
+
+**No imported models. No texture maps. No image files of any kind.**
+
+Every part is a `BufferGeometry` generated at runtime from lathed
+profiles, extruded shells and displaced vertices. Every surface is one
+custom GLSL shader. The aperture scale, distance scale and name plate
+are drawn onto a `<canvas>` when the page loads.
+
+That constraint is the point of the project — it forces the detail to
+come from geometry and light rather than from assets.
+
+## What's in it
+
+| | |
+|---|---|
+| Components | 36 — optics 8, barrel 9, mechanism 8, body 11 |
+| Sections | 7 |
+| Part annotations | 12, projected from 3D to screen space |
+| Shaders | 1 material shader + 1 backdrop shader |
+| External 3D assets | 0 |
+
+The material shader carries a GGX/Smith specular lobe, Fresnel, thin-film
+iridescence for the glass, chromatic dispersion, a clearcoat layer tuned
+to read as painted metal, and procedural micro-surface noise with
+`fwidth` anti-aliasing.
+
+## How the choreography works
+
+Scroll position is normalised into a single `raw` value. Each subsystem
+gets its own explode amount from `apart × (1 − home)`, so parts separate
+together and settle independently as their section arrives. Nothing that
+moves per frame goes through React state — the scroll engine, the camera
+rig, the model and the annotation projector all write to the DOM or to
+mutable objects directly inside `useFrame`.
+
+## Stack
+
+Next.js 15 (App Router) · React 19 · TypeScript · Tailwind v4 ·
+three.js · @react-three/fiber · GSAP (SplitText) · Lenis
+
+## Running it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+The site is a fully static export — the build writes plain HTML, JS and
+CSS into `dist/`, which can be dropped onto any static host. There is no
+server component.
 
-To learn more about Next.js, take a look at the following resources:
+### Debug flags
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Flag | Effect |
+|---|---|
+| `?debug=1` | Shows scroll state and exposes the scroll engine on `window` |
+| `?at=2.5` | Freezes the teardown at a given scroll position |
+| `?bg=dark` | Switches to the dark backdrop |
+| `?post=1` | Enables the post-processing chain |
+| `?exp=1.6` | Overrides exposure |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Known issue
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Enabling the post-processing chain (`?post=1`) causes intermittent
+flickering at some viewing angles. The cause has not been pinned down —
+the suspicion is that grazing-angle highlights on the glass overflow the
+HDR buffer and poison Bloom's mipmap reduction. The default path skips
+post-processing entirely and is stable; the chain is loaded as a separate
+chunk so it costs nothing when unused.
