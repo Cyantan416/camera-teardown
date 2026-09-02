@@ -6,6 +6,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import dynamic from 'next/dynamic';
 import { BACKDROP } from '@/lib/theme';
 import { EXPOSURE, PRESETS } from '@/lib/material';
+import { view } from '@/lib/state';
 import CameraModel from './CameraModel';
 import CameraRig from './camera/CameraRig';
 import DragOrbit from './DragOrbit';
@@ -64,13 +65,20 @@ function AutoQuality() {
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     if (cores > 4 && !coarse) return;
     stage.current = 2;
+    view.tier = 2;
     setDpr(1);
     for (const m of Object.values(PRESETS)) {
       m.uniforms.uMicroStrength.value = 0;
     }
   }, [setDpr]);
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
+    view.dpr = state.gl.getPixelRatio();
+    // 帧率必须在渲染循环里量。放在 ScrollEngine 的 update 里会出错：
+    // reduced-motion 下那个函数由滚动事件驱动，量到的是事件频率不是帧率
+    if (dt > 0 && dt < 0.5) {
+      view.fps = view.fps ? view.fps + (1 / dt - view.fps) * 0.05 : 1 / dt;
+    }
     if (stage.current >= 3 || dt > 0.5) return;
     samples.current.push(dt);
     if (samples.current.length < 90) return;
@@ -80,6 +88,7 @@ function AutoQuality() {
 
     if (avg > 0.026) {
       stage.current += 1;
+      view.tier = stage.current;
       if (stage.current === 1) {
         setDpr(1);
       } else if (stage.current === 2) {
@@ -105,7 +114,10 @@ export default function Scene() {
   return (
     <div
       data-orbit
-      className="scene-in fixed inset-0 z-0 cursor-grab touch-none select-none" 
+      // touch-pan-y 而不是 touch-none：画布铺满视口，设成 none 的话
+      // 手机上竖向滑动会被拖拽吃掉，页面根本滚不动。
+      // 竖向交还浏览器滚动，横向留给转相机。鼠标不受 touch-action 影响
+      className="scene-in fixed inset-0 z-0 cursor-grab touch-pan-y select-none" 
     >
       <Canvas
         dpr={[1, 1.2]}

@@ -22,6 +22,10 @@ export interface ViewState {
   scale: number;
   // 整体取景远近的手动微调倍数，?fit=1.2 就是全部退远 20%
   fit: number;
+  // 真机排查用：帧率、实际像素比、自动降档到第几级
+  fps: number;
+  dpr: number;
+  tier: number;
   // 当前所有零件的包围球。拖动时相机对准它，保证怎么转都看得到东西
   bounds: { x: number; y: number; z: number; hw: number; hh: number; hd: number };
 }
@@ -39,6 +43,9 @@ export const view: ViewState = {
   drag: { yaw: 0, pitch: 0, active: false },
   scale: EXPLODE_SCALE,
   fit: 1,
+  fps: 0,
+  dpr: 0,
+  tier: 0,
   bounds: { x: 0, y: 0, z: 0, hw: 0.7, hh: 0.4, hd: 0.4 },
 };
 

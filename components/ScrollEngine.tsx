@@ -101,6 +101,7 @@ export default function ScrollEngine() {
       if (panel) {
         const e = view.explode;
         panel.textContent =
+          `FPS ${view.fps.toFixed(0)}   dpr ${view.dpr.toFixed(2)}   tier ${view.tier}\n` +
           `raw ${view.raw.toFixed(3)}   section ${view.section}   progress ${view.progress.toFixed(3)}\n` +
           `apart ${view.apart.toFixed(3)}   scale ${view.scale.toFixed(2)}   vel ${view.velocity.toFixed(2)}\n` +
           `optics ${e.optics.toFixed(3)}   barrel ${e.barrel.toFixed(3)}\n` +
