@@ -17,7 +17,7 @@ export const SECTIONS: Section[] = [
     eyebrow: 'Aperture Works — Series XI',
     title: ['A camera made', 'of light itself.'],
     body: 'Thirty-six components, every one of them drawn in code. No imported model, no texture map. What you see is the mechanism.',
-    note: 'Scroll to take it apart. Keep scrolling and it puts itself back together, one subsystem at a time.',
+    note: 'Scroll to pull it apart. Keep scrolling and it puts itself back together, one subsystem at a time.',
     layout: 'left',
   },
   {
