@@ -1,8 +1,24 @@
 @import "tailwindcss";
 
+/* 中文走系统字体（苹方 / 思源黑体）。不引 Noto Sans SC —— 那个包好几 MB，
+   会毁掉现在的首屏速度，而系统中文字体的质量已经足够 */
 @theme {
-  --font-display: var(--font-display), "Archivo", system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-display), "Archivo", "PingFang SC", "Hiragino Sans GB",
+    "Source Han Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, "PingFang SC",
+    "Microsoft YaHei", monospace;
+}
+
+/* 中文没有大小写，全大写规则对它无效；大字距会让中文散架。
+   这两条只在中文版生效 */
+html[lang="zh-Hans"] .font-mono {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+html[lang="zh-Hans"] h1,
+html[lang="zh-Hans"] h2 {
+  letter-spacing: 0;
 }
 
 /* 背景只挂在 html 上：body 若也有背景，它的背景层会盖住 canvas */

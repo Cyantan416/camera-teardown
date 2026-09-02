@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { SECTIONS } from '@/lib/content';
+import { SECTIONS, getSections } from '@/lib/content';
+import { i18n, LANG_EVENT } from '@/lib/i18n';
 import { registerJump } from '@/lib/scroll';
 import {
   view,
@@ -90,7 +91,7 @@ export default function ScrollEngine() {
         if (navIndex) {
           navIndex.textContent = `${String(view.section + 1).padStart(2, '0')} / ${total}`;
         }
-        if (navLabel) navLabel.textContent = SECTIONS[view.section]?.id ?? '';
+        if (navLabel) navLabel.textContent = getSections(i18n.lang)[view.section]?.nav ?? '';
         for (let i = 0; i < ticks.length; i++) {
           ticks[i].dataset.on = i === view.section ? '1' : '0';
         }
@@ -114,6 +115,12 @@ export default function ScrollEngine() {
       view.pointer.y = -((ev.clientY / window.innerHeight) * 2 - 1);
     };
     window.addEventListener('pointermove', onPointer, { passive: true });
+
+    // 读数只在换段时才写，切语言不换段，得手动逼它重写一次
+    const onLang = () => {
+      lastSection = -1;
+    };
+    window.addEventListener(LANG_EVENT, onLang);
 
     let last = performance.now();
     let prevRaw = 0;
@@ -143,6 +150,7 @@ export default function ScrollEngine() {
       onScroll();
       return () => {
         registerJump(null);
+        window.removeEventListener(LANG_EVENT, onLang);
         window.removeEventListener('resize', measure);
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener('pointermove', onPointer);
@@ -168,6 +176,7 @@ export default function ScrollEngine() {
       cancelAnimationFrame(raf);
       lenis.destroy();
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener(LANG_EVENT, onLang);
       window.removeEventListener('resize', measure);
       panel?.remove();
     };

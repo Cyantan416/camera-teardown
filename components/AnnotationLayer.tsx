@@ -1,10 +1,14 @@
 'use client';
 
 import { ANNO_LIST, LEADER, SVG_H } from '@/lib/annotations';
+import { useLang } from './LangProvider';
 
 // 只出 DOM 骨架。位置、折线形状、入场进度全部由 AnnotationProjector 每帧写。
 // 竖向偏移不能在这里定死 —— 锚点会动，固定偏移挡不住标签互相压
 export default function AnnotationLayer() {
+  const { lang } = useLang();
+  const zh = lang === 'zh';
+
   return (
     <div className="pointer-events-none fixed inset-0 z-30 hidden overflow-hidden lg:block">
       {ANNO_LIST.map((a) => (
@@ -46,10 +50,10 @@ export default function AnnotationLayer() {
             style={{ top: 0, [a.right ? 'left' : 'right']: LEADER + 4 }}
           >
             <span className="block font-mono text-[0.66rem] leading-tight font-medium tracking-[0.1em] whitespace-nowrap text-[#0E1216] uppercase">
-              {a.label}
+              {zh ? a.zhLabel : a.label}
             </span>
             <span className="block font-mono text-[0.6rem] leading-tight tracking-[0.06em] whitespace-nowrap text-[#55606A]">
-              {a.spec}
+              {zh ? a.zhSpec : a.spec}
             </span>
           </div>
         </div>

@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { UI } from '@/lib/i18n';
+import { useLang } from './LangProvider';
 
 // 首屏要等两件事：字体加载完（拆字动画要靠它算位置）和 Canvas 画出第一帧。
 // 计数条是这两件事的真实闸门，不是纯装饰的假进度
 const MIN_MS = 900;
 
 export default function Preloader() {
+  const { lang } = useLang();
   const [gone, setGone] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -76,12 +79,12 @@ export default function Preloader() {
     >
       <p className="flex items-center gap-2.5 font-mono text-[0.68rem] tracking-[0.18em] text-[#14181C] uppercase">
         <span className="h-1.5 w-1.5 rounded-full bg-[#9A6A26]" />
-        Aperture Works
+        {UI[lang].wordmark}
       </p>
 
       <div className="flex items-end justify-between gap-8">
         <p className="max-w-[24ch] font-display text-[1.5rem] leading-[1.15] font-semibold tracking-[-0.01em] text-[#14181C] sm:text-[2.2rem]">
-          Drawing thirty-six parts.
+          {UI[lang].loading}
         </p>
         <span
           ref={numRef}
