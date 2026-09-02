@@ -25,7 +25,7 @@ export const UI = {
   },
   zh: {
     wordmark: 'Aperture Works',
-    loading: '正在画三十六个零件。',
+    loading: '三十六个零件构建中。',
     dragHint: '拖动可旋转',
     backToTop: '回到顶部',
     tagline: '第十一代 — 滚动驱动的拆解',
